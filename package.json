@@ -1,6 +1,6 @@
 {
   "name": "css-scanner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Scanner for css element",
   "main": "css-scanner.js",
   "scripts": {

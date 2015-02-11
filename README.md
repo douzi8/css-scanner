@@ -44,8 +44,9 @@ css.on('comment', function(match) {
   
 });
 
-css.on('rule', function(rule) {
+css.on('rule', function(rule, type) {
   // rule: { selector: [], declaration: [{ property: '', value: ''}] }
+  // type: if type exists, it's means this role is in @ rule, otherwise it's only a rule
 });
 
 css.on('@media', function(name) {
