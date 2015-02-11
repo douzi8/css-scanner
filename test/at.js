@@ -96,9 +96,9 @@ describe('@rule', function() {
         });
       });
 
-      css.on('@keyframes', function(rule, data) {
-        if (data) {
-          assert(data.name);
+      css.on('@keyframes', function(name) {
+        if (name) {
+          assert(name.name);
         }
       });
 
@@ -153,6 +153,51 @@ describe('@rule', function() {
           assert.equal(css._column, code.length + 1);
 
           if (/\}/.test(err)) {
+            return true;
+          }
+        }
+      );
+    });
+  });
+
+  describe('@import', function() {
+    it ('Normal', function() {
+      var content = '@import url("bluish.css") projection, tv;';
+      var css = new CssScanner(content);
+      
+      css.on('@import', function(name) {
+        assert.equal(name, 'url("bluish.css") projection, tv')
+      });
+
+      css.scanner();
+    });
+
+    it('Miss name', function() {
+      var code = '@import ';
+      var css = new CssScanner(code);
+
+      assert.throws(
+        function() {
+          css.scanner();
+        },
+        function(err) {
+          if (/@import.*name/.test(err)) {
+            return true;
+          }
+        }
+      );
+    });
+
+    it('Miss ;', function() {
+      var code = '@import url("bluish.css") projection, tv';
+      var css = new CssScanner(code);
+
+      assert.throws(
+        function() {
+          css.scanner();
+        },
+        function(err) {
+          if (/@import.*;/.test(err)) {
             return true;
           }
         }

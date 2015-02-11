@@ -23,6 +23,8 @@ CssScanner.prototype.scanner = function() {
 
   // fixed end whitespace bug
   this._str = this._str.replace(/\s+$/, '');
+  // @charset must be the first element
+  this._atcharset();
 
   while (this._str) {
     this._whitespace();
@@ -114,12 +116,15 @@ CssScanner.prototype._comments = function() {
   }
 };
 
+// https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule#Conditional_Group_Rules
 CssScanner.prototype._atrule = function() {
   if (this._str[0] !== '@') return false;
 
-  var result = this._atmedia() ||
+  var result = this._atcharset() || 
+               this._atmedia() ||
                this._atkeyframes() ||
-               this._atfontface();
+               this._atfontface() ||
+               this._atimport();
 
   return result;
 };
@@ -188,6 +193,53 @@ CssScanner.prototype._atfontface = function() {
   };
 
   this.emit('rule', rule);
+  return true;
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/CSS/@charset
+CssScanner.prototype._atcharset = function() {
+  var match = this._match(/^\s*@charset\s*/);
+
+  if (!match) {
+    this._atcharset.checked = true;
+    return false;
+  } else if (/^\s+/.test(match[0])){
+    return this._error('@charset can not after a space');
+  }
+
+  if (this._atcharset.checked) {
+    return this._error('@charset must be the first element');
+  }
+
+  var encoding = this._match(/^('[^']+'|"[^"]+")/);
+
+  if (!encoding) return this._error('@charset without \' or "');
+
+  if (!this._match(/^;/)) {
+    return this._error('@charset missing ;');
+  }
+
+  this.emit('@charset', encoding[0].replace(/^['"]|['"]$/g, ''));
+  this._atcharset.checked = true;
+  return true;
+};
+
+CssScanner.prototype._atimport = function() {
+  var match = this._match(/^@import\s*/);
+
+
+  if (!match) return false;
+
+  var name = this._match(/^('[^']*'|"[^"]*"|[^;])+/);
+
+  if (!name) return this._error('Missing @import name');
+
+  if (!this._match(/^;/)) {
+    return this._error('Missing @import ;');
+  }
+
+  this.emit('@import', name[0]);
+
   return true;
 };
 
