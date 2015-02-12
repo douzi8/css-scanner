@@ -201,13 +201,13 @@ CssScanner.prototype._atcharset = function() {
   var match = this._match(/^\s*@charset\s*/);
 
   if (!match) {
-    this._atcharset.checked = true;
+    this._charsetChecked = true;
     return false;
   } else if (/^\s+/.test(match[0])){
     return this._error('@charset can not after a space');
   }
 
-  if (this._atcharset.checked) {
+  if (this._charsetChecked) {
     return this._error('@charset must be the first element');
   }
 
@@ -220,7 +220,7 @@ CssScanner.prototype._atcharset = function() {
   }
 
   this.emit('@charset', encoding[0].replace(/^['"]|['"]$/g, ''));
-  this._atcharset.checked = true;
+  this._charsetChecked = true;
   return true;
 };
 

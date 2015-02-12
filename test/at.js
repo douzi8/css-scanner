@@ -204,4 +204,17 @@ describe('@rule', function() {
       );
     });
   });
+
+  describe('@@charset', function() {
+    it('Normal', function() {
+      var content = '@charset "UTF-8";';
+      var css = new CssScanner(content);
+      
+      css.on('@charset', function(name) {
+        assert.equal(name, 'UTF-8');
+      });
+
+      css.scanner();
+    });
+  });
 });
