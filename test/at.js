@@ -216,5 +216,94 @@ describe('@rule', function() {
 
       css.scanner();
     });
+
+    it('a space', function() {
+      var code = ' @charset "UTF-8";';
+      var css = new CssScanner(code);
+
+      assert.throws(
+        function() {
+          css.scanner();
+        },
+        function(err) {
+          if (/@charset.*space/.test(err)) {
+            return true;
+          }
+        }
+      );
+    });
+
+    it('first element', function() {
+      var content = 'a {} @charset "UTF-8";';
+      var css = new CssScanner(content);
+      
+      assert.throws(
+        function() {
+          css.scanner();
+        },
+        function(err) {
+          if (/@charset.*element/.test(err)) {
+            return true;
+          }
+        }
+      );
+    });
+
+    it('without quote', function() {
+      var content = '@charset UTF-8;';
+      var css = new CssScanner(content);
+      
+      assert.throws(
+        function() {
+          css.scanner();
+        },
+        function(err) {
+          if (/@charset/.test(err)) {
+            return true;
+          }
+        }
+      );
+    });
+
+    it('without semicolon', function() {
+      var content = '@charset "UTF-8"';
+      var css = new CssScanner(content);
+      
+      assert.throws(
+        function() {
+          css.scanner();
+        },
+        function(err) {
+          if (/@charset/.test(err)) {
+            return true;
+          }
+        }
+      );
+    });
+  });
+
+  describe('@font-face', function() {
+    it('Normal', function() {
+      var content = readFileSync('fixed/atfontface.css');
+      var css = new CssScanner(content);
+
+      css.on('@rule', function(rule) {
+        assert.deepEqual(rule, {
+          selector: ['@font-face'],
+          declaration: [{
+            property: 'font-family',
+            value: 'MyHelvetica'
+          }, {
+            property: 'src',
+            value: 'local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"), url(MgOpenModernaBold.ttf)'
+          }, {
+            property: 'font-weight',
+            value: 'bold'
+          }]
+        });
+      });
+
+      css.scanner();
+    });
   });
 });

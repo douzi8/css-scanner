@@ -313,7 +313,7 @@ CssScanner.prototype._declaration = function() {
 
   function value() {
     self._comments();
-    var match = self._match(/^('[^']*'|"[^"]*"|\([^\)]*\)|[^;}\n])+/);
+    var match = self._match(/^('[^']*'|"[^"]*"|\([^\)]*\)|,\s*|[^;}\n])+/);
 
     if (!match) {
       return self._error('Declaration with value error');
